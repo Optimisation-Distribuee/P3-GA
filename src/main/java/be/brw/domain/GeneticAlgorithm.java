@@ -337,9 +337,12 @@ public class GeneticAlgorithm {
                 // Select the fittest individuals from a random sample
                 int tournamentSize = config.getTournamentSize();
                 List<Individual> tournamentWinners = new ArrayList<>(selectionSize);
+                List<Individual> players;
                 for (int i = 0; i < selectionSize; i++) {
                     Collections.shuffle(individuals, random);
-                    tournamentWinners.addAll(individuals.subList(0, tournamentSize));
+                    players = individuals.subList(0, tournamentSize);
+                    players.sort(Comparator.comparing(Individual::getFitness));
+                    tournamentWinners.add(players.getLast());
                 }
                 return tournamentWinners;
         }
