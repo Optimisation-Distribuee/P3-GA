@@ -83,6 +83,16 @@ public class Individual implements Comparable<Individual>{
     }
 
     /**
+     * Get a gene at a specific position in the genome.
+     *
+     * @param index The position of the gene to set.
+     * @return the gene at index {index}
+     */
+    public Byte getGene(int index){
+        return genome.get(index);
+    }
+
+    /**
      * Updates a gene at a specific position in the genome.
      *
      * @param index The position of the gene to set.

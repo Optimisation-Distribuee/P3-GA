@@ -110,7 +110,10 @@ public class Population {
         for (Individual individual : this.individuals) {
             List<Byte> genome = individual.getGenome();
 
+            // TODO: implement fitness calculation by sending the genome (moves) to Adriaan
             int fitness = 0;
+
+            /*
             // Determine the comparison length to avoid IndexOutOfBoundsException
             int comparisonLength = Math.min(solution.size(), genome.size());
 
@@ -119,6 +122,7 @@ public class Population {
                     fitness++;
                 }
             }
+            */
 
             // Calculate the penalty for length difference.
             int penalty = 0;
@@ -173,8 +177,10 @@ public class Population {
      */
     private List<Byte> generateRandomGenome(int genomeLength) {
         List<Byte> genome = new ArrayList<>();
+        Moves randomMove;
         for (int j = 0; j < genomeLength; j++) {
-            genome.add((byte) random.nextInt(2));
+            randomMove = Moves.values()[this.random.nextInt(Moves.values().length)];
+            genome.add(Moves.toByte(randomMove));
         }
         return genome;
     }

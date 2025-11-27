@@ -1,5 +1,6 @@
 seed: 42
-solution: "01001101"
+# L = LEFT, R = RIGHT, + = JUMP & RIGHT, - = JUMP & LEFT, / = FREEZE (do nothing)
+solution: "LR+-/"
 minGenomeLength: 5
 maxGenomeLength: 10
 maxGeneration: 100000
@@ -16,7 +17,7 @@ bitFlipRate: 0.7
 bitAddRate: 0.2
 bitRemoveRate: 0.1
 
-# ONE_POINT , TWO_POINT , UNIFORM , ARITHMETIC
+# ONE_POINT , TWO_POINT , UNIFORM
 crossoverStrategy: "UNIFORM"
 crossoverRate: 0.9
 

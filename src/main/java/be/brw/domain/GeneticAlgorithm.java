@@ -184,12 +184,6 @@ public class GeneticAlgorithm {
                     }
                 }
 
-                case ARITHMETIC -> {
-                    for (int i = 0; i < minLength; i++) {
-                        newGenome.add((byte) (genome1.get(i) ^ genome2.get(i)));
-                    }
-                }
-
                 default -> throw new UnsupportedOperationException(
                         "Unknown crossover strategy: " + crossoverStrategy
                 );
@@ -276,20 +270,22 @@ public class GeneticAlgorithm {
      */
     private Individual mutate(Individual individual){
         int randomGeneIndex = random.nextInt(individual.getGenomeLength());
-        Byte randomGene = (byte) random.nextInt(2);
+        Moves randomMove = Moves.values()[this.random.nextInt(Moves.values().length)];
+        Byte randomGene = Moves.toByte(randomMove);
 
         // Pick a mutation in a roulette-like fashion
         double pick = random.nextDouble();
         if (pick <= config.getBitAddRate()) {
-            // ADD mutation
             individual.addGene(randomGene);
         } else if (pick <= config.getBitAddRate() + config.getBitRemoveRate()) {
-            // REMOVE mutation
             if (individual.getGenomeLength() > 1) {
                 individual.removeGene(randomGeneIndex);
             }
         } else {
-            // FLIP mutation
+            while(randomGene.equals(individual.getGene(randomGeneIndex))){
+                randomMove = Moves.values()[this.random.nextInt(Moves.values().length)];
+                randomGene = Moves.toByte(randomMove);
+            }
             individual.setGene(randomGeneIndex, randomGene);
         }
         return individual;
