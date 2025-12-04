@@ -1,5 +1,7 @@
 package be.brw.domain;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 /**
  * Represents a single individual in a genetic algorithm population.
@@ -145,16 +147,20 @@ public class Individual implements Comparable<Individual>{
      */
     @Override
     public String toString() {
-        // Convert the list of bytes/integers to a readable string
-        byte[] bytes = new byte[genome.size()];
-        for(int i = 0; i < genome.size(); i++) {
-            bytes[i] = genome.get(i);
-        }
-        String genomeString = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+        String genomeString = getGenomeString();
 
         return "Individual{" +
                 "genome='" + genomeString + '\'' +
                 ", fitness=" + fitness +
                 '}';
+    }
+
+    public String getGenomeString() {
+        // Convert the list of bytes/integers to a readable string
+        byte[] bytes = new byte[genome.size()];
+        for(int i = 0; i < genome.size(); i++) {
+            bytes[i] = genome.get(i);
+        }
+        return new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
     }
 }

@@ -61,6 +61,8 @@ public class ConfigLoader {
             LengthPunishingStrategy lengthPunishingStrategy = LengthPunishingStrategy.valueOf(obj.get("lengthPunishingStrategy").toString());
             double lengthPunishingFactor = Double.parseDouble(obj.get("lengthPunishingFactor").toString());
 
+            int maxSolutions = Integer.parseInt(obj.get("maxSolutions").toString());
+
             return new GAConfig(
                     seed,
                     solution,
@@ -79,7 +81,8 @@ public class ConfigLoader {
                     crossoverRate,
                     crossoverLeftoverStrategy,
                     lengthPunishingStrategy,
-                    lengthPunishingFactor
+                    lengthPunishingFactor,
+                    maxSolutions
             );
         }
     }

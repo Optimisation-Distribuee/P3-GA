@@ -37,8 +37,9 @@ public class GAConfig {
     // Punisher
     private final LengthPunishingStrategy lengthPunishingStrategy;
     private final double lengthPunishingFactor;
+    private final int maxSolutions;
 
-    public GAConfig(int seed, byte[] solution, int minGenomeLength, int maxGenomeLength, int maxGeneration, int populationSize, SelectionStrategy selectionStrategy, int tournamentSize, MutationTargetStrategy mutationTargetStrategy, double mutationRate, double bitFlipRate, double bitAddRate, double bitRemoveRate, CrossoverStrategy crossoverStrategy, double crossoverRate, CrossoverLeftoverStrategy crossoverLeftoverStrategy, LengthPunishingStrategy lengthPunishingStrategy, double lengthPunishingFactor) {
+    public GAConfig(int seed, byte[] solution, int minGenomeLength, int maxGenomeLength, int maxGeneration, int populationSize, SelectionStrategy selectionStrategy, int tournamentSize, MutationTargetStrategy mutationTargetStrategy, double mutationRate, double bitFlipRate, double bitAddRate, double bitRemoveRate, CrossoverStrategy crossoverStrategy, double crossoverRate, CrossoverLeftoverStrategy crossoverLeftoverStrategy, LengthPunishingStrategy lengthPunishingStrategy, double lengthPunishingFactor, int maxSolutions) {
         this.seed = seed;
         this.solution = solution;
         this.minGenomeLength = minGenomeLength;
@@ -57,6 +58,7 @@ public class GAConfig {
         this.crossoverLeftoverStrategy = crossoverLeftoverStrategy;
         this.lengthPunishingStrategy = lengthPunishingStrategy;
         this.lengthPunishingFactor = lengthPunishingFactor;
+        this.maxSolutions = maxSolutions;
     }
 
     public int getSeed(){
@@ -133,6 +135,8 @@ public class GAConfig {
         return lengthPunishingFactor;
     }
 
+    public int getMaxSolutions() { return maxSolutions; }
+
     @Override
     public String toString() {
         return "GAConfig{" +
@@ -154,6 +158,7 @@ public class GAConfig {
                 ", crossoverLeftoverStrategy=" + crossoverLeftoverStrategy +
                 ", lengthPunishingStrategy=" + lengthPunishingStrategy +
                 ", lengthPunishingFactor=" + lengthPunishingFactor +
+                ", maxSolutions=" + maxSolutions +
                 '}';
     }
 }

@@ -3,10 +3,11 @@ package be.brw;
 import be.brw.config.ConfigLoader;
 import be.brw.config.GAConfig;
 import be.brw.domain.GeneticAlgorithm;
-import be.brw.domain.Individual;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,8 +16,22 @@ public class Main {
             // System.out.println(config);
 
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(config);
-            Individual individual = geneticAlgorithm.runAlgorithm();
-            System.out.println(individual);
+            List<String> winners = geneticAlgorithm.runAlgorithm();
+            winners.sort(Comparator.comparingInt(String::length));
+            StringBuilder stringBuilder = new StringBuilder();
+            for (String winner : winners) {
+                stringBuilder.append("\"");
+                stringBuilder.append(winner);
+                stringBuilder.append("\"");
+                stringBuilder.append(" ");
+            }
+            System.out.println(stringBuilder);
+            if (!winners.isEmpty()) {
+                System.out.println("Found " + winners.size() + " solutions, shortest one is "  + winners.getFirst());
+            }
+            else {
+                System.out.println("No solutions found");
+            }
 
         } catch (IOException e) {
             System.err.println(e.getMessage());

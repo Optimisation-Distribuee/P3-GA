@@ -70,10 +70,12 @@ public class GeneticAlgorithm {
      * </p>
      * @return The fittest individual found after the algorithm completes or finds a solution.
      */
-    public Individual runAlgorithm() {
+    public List<String> runAlgorithm() {
         int maxGeneration = config.getMaxGeneration();
         MutationTargetStrategy mutTarget = config.getMutationTargetStrategy();
         int eliteCount = (int) Math.round(config.getPopulationSize() * (1.0 - config.getCrossoverRate()));
+        List<String> winners = new ArrayList<>();
+        int maxSolutions = config.getMaxSolutions();
         for (int i = 0; i <= maxGeneration; i++){
             this.generationCount = i;
 
@@ -81,13 +83,17 @@ public class GeneticAlgorithm {
 
             // Check for a perfect solution in the current population.
             for (Individual individual: individuals){
-                if(individual.getFitness() >= 1.0){
-                    System.out.println("Solution found in " + i + " generations");
-                    return this.population.getFittest();
+                if(individual.getFitness() >= 1.0 && !winners.contains(individual.getGenomeString())){
+                    if (winners.isEmpty()) {
+                        System.out.println("Solution found in " + i + " generations");
+                    }
+                    String winnerGenomeString = individual.getGenomeString();
+                    winners.add(winnerGenomeString);
+                    if (winners.size() == maxSolutions){
+                        return winners;
+                    }
                 }
             }
-
-            System.out.println(this.population.getFittest());
 
             // 1. Selection: Select the "elite" individuals to survive to the next generation.
             List<Individual> survivors = selection(individuals, eliteCount);
@@ -119,9 +125,7 @@ public class GeneticAlgorithm {
             survivors.addAll(children);
             this.population = new Population(survivors, config.getSeed());
         }
-
-        System.out.println("No solution found in " + maxGeneration + " generations");
-        return this.population.getFittest();
+        return winners;
     }
 
     /**

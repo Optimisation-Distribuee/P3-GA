@@ -1,9 +1,9 @@
 seed: 42
 # L = LEFT, R = RIGHT, + = JUMP & RIGHT, - = JUMP & LEFT, / = FREEZE (do nothing)
 solution: "LR+-/"
-minGenomeLength: 5
-maxGenomeLength: 20
-maxGeneration: 100000
+minGenomeLength: 30
+maxGenomeLength: 50
+maxGeneration: 250
 populationSize: 100
 
 # ELITISM , ROULETTE , TOURNAMENT
@@ -27,3 +27,5 @@ crossoverLeftoverStrategy: "KEEP_ONE_OR_NOT_RANDOMLY"
 # LINEAR, EXPONENTIAL
 lengthPunishingStrategy: "EXPONENTIAL"
 lengthPunishingFactor: 0.5
+
+maxSolutions: 15

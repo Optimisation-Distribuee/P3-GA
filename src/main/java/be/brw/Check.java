@@ -3,7 +3,6 @@ package be.brw;
 import be.brw.config.ConfigLoader;
 import be.brw.config.GAConfig;
 import be.brw.domain.GeneticAlgorithm;
-import be.brw.domain.Individual;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -41,14 +40,14 @@ public class Check {
                     GAConfig config = ConfigLoader.fromYaml(configPath);
                     GeneticAlgorithm ga = new GeneticAlgorithm(config);
 
-                    Individual result = ga.runAlgorithm();
+                    List<String> result = ga.runAlgorithm();
                     int generationCount = ga.getGenerationCount();
 
                     String line = String.format(
                             "[%s] Fitness=%f  Genomes=%s  Generations=%d%n",
                             configPath.getFileName(),
-                            result.getFitness(),
-                            result.getGenome().toString(),
+                            1.0,
+                            result.getFirst(),
                             generationCount
                     );
 
