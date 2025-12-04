@@ -145,8 +145,15 @@ public class Individual implements Comparable<Individual>{
      */
     @Override
     public String toString() {
+        // Convert the list of bytes/integers to a readable string
+        byte[] bytes = new byte[genome.size()];
+        for(int i = 0; i < genome.size(); i++) {
+            bytes[i] = genome.get(i);
+        }
+        String genomeString = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+
         return "Individual{" +
-                "genome=" + genome +
+                "genome='" + genomeString + '\'' +
                 ", fitness=" + fitness +
                 '}';
     }

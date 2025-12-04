@@ -2,8 +2,8 @@ package be.brw.infrastructure;
 
 import be.brw.domain.FitnessEvaluator;
 import be.brw.domain.Individual;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 import java.io.IOException;
@@ -12,13 +12,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class RemoteFitnessEvaluator  implements FitnessEvaluator {
     private final HttpClient client = HttpClient.newHttpClient();
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final URI serviceUri;
 
     public RemoteFitnessEvaluator(String baseUrl) {
@@ -46,23 +46,26 @@ public class RemoteFitnessEvaluator  implements FitnessEvaluator {
         try {
             // Prepare the request JSON & send it
             Map<String, List<String>> requestPayload = Map.of("solutions", genomeStrings);
-            String requestBody = objectMapper.writeValueAsString(requestPayload);
+            JSONObject jsonObject = new JSONObject(requestPayload);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(serviceUri)
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonObject.toString()))
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
                 // Parse the response
-                Map<String, List<Double>> responseBody = objectMapper.readValue(response.body(), new TypeReference<>() {});
-                List<Double> fitnessScores = responseBody.get("fitness_scores");
-                if (fitnessScores != null) {
-                    return fitnessScores;
+                JSONObject responseBody = new JSONObject(response.body());
+                JSONArray responseBodyJSONArray = responseBody.getJSONArray("fitness_scores");
+                List<Double> fitnessScores = new ArrayList<>();
+                for (int i = 0; i < responseBodyJSONArray.length(); i++) {
+                    fitnessScores.add(responseBodyJSONArray.getDouble(i));
                 }
+                return fitnessScores;
             }
             // Handle non-200 responses or unexpected response format
             System.err.println("Error evaluating fitness. Status: " + response.statusCode() + ", Body: " + response.body());

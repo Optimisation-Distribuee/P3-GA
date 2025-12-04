@@ -73,7 +73,7 @@ public class Population {
     }
 
     public void updateFitness() {
-        FitnessEvaluator fitnessEvaluator = new RemoteFitnessEvaluator("http://localhost:5000/evaluate");
+        FitnessEvaluator fitnessEvaluator = new RemoteFitnessEvaluator("http://localhost:8000/evaluate");
         List<Double> fitness = fitnessEvaluator.evaluate(individuals);
 
         for (int i = 0; i < fitness.size(); i++) {

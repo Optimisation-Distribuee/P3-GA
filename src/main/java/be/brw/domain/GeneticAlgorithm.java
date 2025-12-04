@@ -81,11 +81,13 @@ public class GeneticAlgorithm {
 
             // Check for a perfect solution in the current population.
             for (Individual individual: individuals){
-                if(individual.getGenome().equals(this.config.getSolution())){
+                if(individual.getFitness() >= 1.0){
                     System.out.println("Solution found in " + i + " generations");
                     return this.population.getFittest();
                 }
             }
+
+            System.out.println(this.population.getFittest());
 
             // 1. Selection: Select the "elite" individuals to survive to the next generation.
             List<Individual> survivors = selection(individuals, eliteCount);

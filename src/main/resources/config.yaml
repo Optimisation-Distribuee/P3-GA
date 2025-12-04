@@ -2,7 +2,7 @@ seed: 42
 # L = LEFT, R = RIGHT, + = JUMP & RIGHT, - = JUMP & LEFT, / = FREEZE (do nothing)
 solution: "LR+-/"
 minGenomeLength: 5
-maxGenomeLength: 10
+maxGenomeLength: 20
 maxGeneration: 100000
 populationSize: 100
 

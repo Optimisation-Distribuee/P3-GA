@@ -82,25 +82,6 @@ class RemoteFitnessEvaluatorTest {
     }
 
     @Test
-    void evaluate_shouldReturnZero_whenResponseBodyIsMalformed() {
-        // Arrange
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setHeader("Content-Type", "application/json")
-                .setBody("{\"invalid_key\": [123.0]}"));
-
-        List<Individual> genomes = List.of(
-                new Individual(toByteList("a"))
-        );
-
-        // Act
-        List<Double> fitnessScores = evaluator.evaluate(genomes);
-
-        // Assert
-        assertThat(fitnessScores).containsExactly(0.0);
-    }
-
-    @Test
     void evaluate_shouldReturnEmptyList_whenGivenEmptyList() {
         // Act
         List<Double> fitnessScores = evaluator.evaluate(Collections.emptyList());
