@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,27 +35,30 @@ class RemoteFitnessEvaluatorTest {
     }
 
     @Test
-    void evaluate_shouldReturnFitnessScore_whenServerResponds200() throws InterruptedException {
+    void evaluate_shouldReturnFitnessScores_whenServerResponds200() throws InterruptedException {
         // Arrange: Prepare the mock server to send a successful response.
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setHeader("Content-Type", "application/json")
                 .setBody("{\"fitness_scores\": [42.0, 55.5]}"));
 
-        // Convert byte[] to List<Byte>
-        List<Byte> genomeList = toByteList("LRLRLR");
+        // Prepare a list of genomes for batch evaluation
+        List<List<Byte>> genomes = List.of(
+                toByteList("LRLRLR"),
+                toByteList("RRLRRL")
+        );
 
         // Act: Call the method we want to test.
-        int fitness = evaluator.evaluate(genomeList);
+        List<Double> fitnessScores = evaluator.evaluate(genomes);
 
         // Assert: Verify the outcome.
-        assertThat(fitness).isEqualTo(42);
+        assertThat(fitnessScores).containsExactly(42.0, 55.5);
 
         // Assert: Verify that our client sent the correct request.
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         assertThat(recordedRequest.getMethod()).isEqualTo("POST");
         assertThat(recordedRequest.getPath()).isEqualTo("/evaluate");
-        assertThat(recordedRequest.getBody().readUtf8()).isEqualTo("{\"solutions\":[\"LRLRLR\"]}");
+        assertThat(recordedRequest.getBody().readUtf8()).isEqualTo("{\"solutions\":[\"LRLRLR\",\"RRLRRL\"]}");
     }
 
     @Test
@@ -64,13 +68,13 @@ class RemoteFitnessEvaluatorTest {
                 .setResponseCode(500)
                 .setBody("Internal Server Error"));
 
-        List<Byte> genomeList = toByteList("LRLRLR");
+        List<List<Byte>> genomes = List.of(toByteList("LRLRLR"), toByteList("ABC"));
 
         // Act
-        int fitness = evaluator.evaluate(genomeList);
+        List<Double> fitnessScores = evaluator.evaluate(genomes);
 
         // Assert
-        assertThat(fitness).isZero();
+        assertThat(fitnessScores).containsExactly(0.0, 0.0);
     }
 
     @Test
@@ -81,13 +85,22 @@ class RemoteFitnessEvaluatorTest {
                 .setHeader("Content-Type", "application/json")
                 .setBody("{\"invalid_key\": [123.0]}"));
 
-        List<Byte> genome = toByteList("a");
+        List<List<Byte>> genomes = List.of(toByteList("a"));
 
         // Act
-        int fitness = evaluator.evaluate(genome);
+        List<Double> fitnessScores = evaluator.evaluate(genomes);
 
         // Assert
-        assertThat(fitness).isZero();
+        assertThat(fitnessScores).containsExactly(0.0);
+    }
+
+    @Test
+    void evaluate_shouldReturnEmptyList_whenGivenEmptyList() {
+        // Act
+        List<Double> fitnessScores = evaluator.evaluate(Collections.emptyList());
+
+        // Assert
+        assertThat(fitnessScores).isEmpty();
     }
 
     // Helper method: Convert a String to a List<Byte>

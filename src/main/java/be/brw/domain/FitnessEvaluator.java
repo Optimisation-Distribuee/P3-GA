@@ -4,10 +4,10 @@ import java.util.List;
 
 public interface FitnessEvaluator {
     /**
-     * Calculates and returns the fitness score for a given genome.
+     * Calculates and returns the fitness scores for a list of genomes.
      *
-     * @param genome The list of bytes representing the individual's genome.
-     * @return The fitness score as an integer.
+     * @param genomes A list of genomes to be evaluated.
+     * @return A list of fitness scores, one for each genome in the input list.
      */
-    int evaluate(List<Byte> genome);
+    List<Double> evaluate(List<List<Byte>> genomes);
 }

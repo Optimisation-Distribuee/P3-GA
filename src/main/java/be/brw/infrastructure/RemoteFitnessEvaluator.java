@@ -27,15 +27,24 @@ public class RemoteFitnessEvaluator  implements FitnessEvaluator {
     }
 
     @Override
-    public int evaluate(List<Byte> genome) {
-        byte[] genomeBytes = new byte[genome.size()];
-        for (int i = 0; i < genome.size(); i++) {
-            genomeBytes[i] = genome.get(i);
+    public List<Double> evaluate(List<List<Byte>> genomes) {
+        if (genomes == null || genomes.isEmpty()) {
+            return Collections.emptyList();
         }
-        String genomeString = new String(genomeBytes, StandardCharsets.UTF_8);
+        // Convert to a List<String>
+        List<String> genomeStrings = genomes.stream()
+                .map(genome -> {
+                    byte[] genomeBytes = new byte[genome.size()];
+                    for (int i = 0; i < genome.size(); i++) {
+                        genomeBytes[i] = genome.get(i);
+                    }
+                    return new String(genomeBytes, StandardCharsets.UTF_8);
+                })
+                .toList();
 
         try {
-            Map<String, List<String>> requestPayload = Map.of("solutions", Collections.singletonList(genomeString));
+            // Prepare the request JSON & send it
+            Map<String, List<String>> requestPayload = Map.of("solutions", genomeStrings);
             String requestBody = objectMapper.writeValueAsString(requestPayload);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -47,10 +56,11 @@ public class RemoteFitnessEvaluator  implements FitnessEvaluator {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
+                // Parse the response
                 Map<String, List<Double>> responseBody = objectMapper.readValue(response.body(), new TypeReference<>() {});
                 List<Double> fitnessScores = responseBody.get("fitness_scores");
-                if (fitnessScores != null && !fitnessScores.isEmpty()) {
-                    return fitnessScores.getFirst().intValue();
+                if (fitnessScores != null) {
+                    return fitnessScores;
                 }
             }
             // Handle non-200 responses or unexpected response format
@@ -58,6 +68,7 @@ public class RemoteFitnessEvaluator  implements FitnessEvaluator {
         } catch (IOException | InterruptedException e) {
             System.err.println("Exception during remote fitness evaluation: " + e.getMessage());
         }
-        return 0;
+        // In case of any error, return a list of zeros with the same size as the input.
+        return Collections.nCopies(genomes.size(), 0.0);
     }
 }
