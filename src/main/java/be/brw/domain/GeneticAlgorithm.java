@@ -2,6 +2,7 @@ package be.brw.domain;
 
 import be.brw.config.GAConfig;
 import be.brw.domain.strategy.*;
+import be.brw.infrastructure.RemoteFitnessEvaluator;
 
 import java.util.*;
 
@@ -32,6 +33,8 @@ public class GeneticAlgorithm {
      */
     private int generationCount;
 
+    private FitnessEvaluator fitnessEvaluator;
+
     /**
      * Constructs a new GeneticAlgorithm instance and initializes the first population.
      *
@@ -40,13 +43,15 @@ public class GeneticAlgorithm {
     public GeneticAlgorithm(GAConfig configuration){
         this.config = configuration;
         this.random = new Random(config.getSeed());
+        this.fitnessEvaluator = new RemoteFitnessEvaluator("http://localhost:8000");
 
         // Initialize the starting population based on the configuration.
         this.population = new Population(
                 config.getPopulationSize(),
                 config.getMinGenomeLength(),
                 config.getMaxGenomeLength(),
-                config.getSeed()
+                config.getSeed(),
+                fitnessEvaluator
         );
 
         this.generationCount = 0;
@@ -112,19 +117,19 @@ public class GeneticAlgorithm {
             while (eliteCount + children.size() < config.getPopulationSize()) {
                 List<Individual> parents = selection(survivors, 2);
                 Individual child = crossover(parents.getFirst(), parents.getLast());
-                if (mutTarget == MutationTargetStrategy.CHILDREN || mutTarget == MutationTargetStrategy.BOTH) {
-                    if (random.nextDouble() <= config.getMutationRate()) {
+                if ((mutTarget == MutationTargetStrategy.CHILDREN || mutTarget == MutationTargetStrategy.BOTH) && random.nextDouble() <= config.getMutationRate()) {
                         mutate(child);
                     }
-                }
+
 
                 children.add(child);
             }
 
             // Create the next generation's population from survivors and new children.
             survivors.addAll(children);
-            this.population = new Population(survivors, config.getSeed());
+            this.population = new Population(survivors, config.getSeed(), fitnessEvaluator);
         }
+        System.out.println("Best genome found: " + this.population.getFittest().getGenomeString() + " with fitness " + this.population.getFittest().getFitness());
         return winners;
     }
 

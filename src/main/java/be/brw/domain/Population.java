@@ -29,6 +29,8 @@ public class Population {
      */
     private List<Individual> individuals;
 
+    private FitnessEvaluator fitnessEvaluator;
+
     /**
      * Constructs a new population with randomly generated individuals of variable genome length.
      * After initialization, the fitness of each individual is calculated against the provided solution.
@@ -38,9 +40,10 @@ public class Population {
      * @param maxGenomeLength The maximum possible length for a randomly generated genome.
      * @param seed The seed for the random number generator to ensure reproducibility.
      */
-    public Population(int size, int minGenomeLength, int maxGenomeLength, int seed){
+    public Population(int size, int minGenomeLength, int maxGenomeLength, int seed, FitnessEvaluator fitnessEvaluator) {
         this.random = new Random(seed);
         this.initPopulation(size, minGenomeLength, maxGenomeLength);
+        this.fitnessEvaluator = fitnessEvaluator;
         this.updateFitness();
     }
 
@@ -52,9 +55,10 @@ public class Population {
      * @param defaultGenomeLength The fixed length for all randomly generated genomes.
      * @param seed The seed for the random number generator to ensure reproducibility.
      */
-    public Population(int size, int defaultGenomeLength, int seed){
+    public Population(int size, int defaultGenomeLength, int seed, FitnessEvaluator fitnessEvaluator){
         this.random = new Random(seed);
         this.initPopulation(size, defaultGenomeLength);
+        this.fitnessEvaluator = fitnessEvaluator;
         this.updateFitness();
     }
 
@@ -66,9 +70,10 @@ public class Population {
      * @param individuals The pre-existing list of individuals to form the population.
      * @param seed The seed for the random number generator.
      */
-    public Population(List<Individual> individuals, int seed){
+    public Population(List<Individual> individuals, int seed, FitnessEvaluator fitnessEvaluator){
         this.random = new Random(seed);
         this.individuals = individuals;
+        this.fitnessEvaluator = fitnessEvaluator;
         this.updateFitness();
     }
 

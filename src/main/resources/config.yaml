@@ -2,8 +2,8 @@ seed: 42
 # L = LEFT, R = RIGHT, + = JUMP & RIGHT, - = JUMP & LEFT, / = FREEZE (do nothing)
 solution: "LR+-/"
 minGenomeLength: 30
-maxGenomeLength: 50
-maxGeneration: 250
+maxGenomeLength: 60
+maxGeneration: 1000
 populationSize: 100
 
 # ELITISM , ROULETTE , TOURNAMENT

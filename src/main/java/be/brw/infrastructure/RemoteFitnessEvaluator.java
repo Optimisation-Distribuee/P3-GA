@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RemoteFitnessEvaluator  implements FitnessEvaluator {
-    private final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpClient client = HttpClient.newHttpClient();
     private final URI serviceUri;
 
     public RemoteFitnessEvaluator(String baseUrl) {
@@ -71,6 +71,7 @@ public class RemoteFitnessEvaluator  implements FitnessEvaluator {
             System.err.println("Error evaluating fitness. Status: " + response.statusCode() + ", Body: " + response.body());
         } catch (IOException | InterruptedException e) {
             System.err.println("Exception during remote fitness evaluation: " + e.getMessage());
+            Thread.currentThread().interrupt();
         }
         // In case of any error, return a list of zeros with the same size as the input.
         return Collections.nCopies(genomes.size(), 0.0);
