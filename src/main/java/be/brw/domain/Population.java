@@ -1,7 +1,7 @@
 package be.brw.domain;
 
 
-import be.brw.domain.strategy.LengthPunishingStrategy;
+import be.brw.infrastructure.RemoteFitnessEvaluator;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,51 +30,32 @@ public class Population {
     private List<Individual> individuals;
 
     /**
-     * The strategy used to penalize individuals whose genome length differs from the solution's length.
-     */
-    private final LengthPunishingStrategy lengthPunishingStrategy;
-    /**
-     * The factor by which the length-difference penalty is multiplied.
-     */
-    private final double lengthPunishingFactor;
-
-    /**
      * Constructs a new population with randomly generated individuals of variable genome length.
      * After initialization, the fitness of each individual is calculated against the provided solution.
      *
-     * @param solution The target bitstring solution used for fitness calculation.
      * @param size The number of individuals to create in the population.
      * @param minGenomeLength The minimum possible length for a randomly generated genome.
      * @param maxGenomeLength The maximum possible length for a randomly generated genome.
      * @param seed The seed for the random number generator to ensure reproducibility.
-     * @param lengthPunishingStrategy The strategy for penalizing genome length differences.
-     * @param lengthPunishingFactor The multiplier for the length penalty.
      */
-    public Population(List<Byte> solution, int size, int minGenomeLength, int maxGenomeLength, int seed, LengthPunishingStrategy lengthPunishingStrategy, double lengthPunishingFactor){
+    public Population(int size, int minGenomeLength, int maxGenomeLength, int seed){
         this.random = new Random(seed);
-        this.lengthPunishingStrategy = lengthPunishingStrategy;
-        this.lengthPunishingFactor = lengthPunishingFactor;
         this.initPopulation(size, minGenomeLength, maxGenomeLength);
-        this.updateFitness(solution);
+        this.updateFitness();
     }
 
     /**
      * Constructs a new population with randomly generated individuals of a fixed genome length.
      * After initialization, the fitness of each individual is calculated against the provided solution.
      *
-     * @param solution The target bitstring solution used for fitness calculation.
      * @param size The number of individuals to create in the population.
      * @param defaultGenomeLength The fixed length for all randomly generated genomes.
      * @param seed The seed for the random number generator to ensure reproducibility.
-     * @param lengthPunishingStrategy The strategy for penalizing genome length differences.
-     * @param lengthPunishingFactor The multiplier for the length penalty.
      */
-    public Population(List<Byte> solution, int size, int defaultGenomeLength, int seed, LengthPunishingStrategy lengthPunishingStrategy, double lengthPunishingFactor){
+    public Population(int size, int defaultGenomeLength, int seed){
         this.random = new Random(seed);
-        this.lengthPunishingStrategy = lengthPunishingStrategy;
-        this.lengthPunishingFactor = lengthPunishingFactor;
         this.initPopulation(size, defaultGenomeLength);
-        this.updateFitness(solution);
+        this.updateFitness();
     }
 
     /**
@@ -82,57 +63,24 @@ public class Population {
      * The fitness of each individual in the provided list is immediately calculated
      * against the given solution.
      *
-     * @param solution The target bitstring solution used for fitness calculation.
      * @param individuals The pre-existing list of individuals to form the population.
      * @param seed The seed for the random number generator.
-     * @param lengthPunishingStrategy The strategy for penalizing genome length differences.
-     * @param lengthPunishingFactor The multiplier for the length penalty.
      */
-    public Population(List<Byte> solution, List<Individual> individuals, int seed, LengthPunishingStrategy lengthPunishingStrategy, double lengthPunishingFactor){
+    public Population(List<Individual> individuals, int seed){
         this.random = new Random(seed);
         this.individuals = individuals;
-        this.lengthPunishingStrategy = lengthPunishingStrategy;
-        this.lengthPunishingFactor = lengthPunishingFactor;
-        this.updateFitness(solution);
+        this.updateFitness();
     }
 
-    /**
-     * Calculates and updates the fitness for every individual in the population.
-     * <p>
-     * Fitness is calculated by counting the number of matching genes at the same position
-     * and then penalizing the score based on the difference in length between the
-     * individual's genome and the target solution.
-     * </p>
-     *
-     * @param solution The target bitstring to compare against.
-     */
-    public void updateFitness(List<Byte> solution) {
-        for (Individual individual : this.individuals) {
-            List<Byte> genome = individual.getGenome();
+    public void updateFitness() {
+        FitnessEvaluator fitnessEvaluator = new RemoteFitnessEvaluator("http://localhost:5000/evaluate");
+        List<Double> fitness = fitnessEvaluator.evaluate(individuals);
 
-            // TODO: implement fitness calculation by sending the genome (moves) to Adriaan
-            int fitness = 0;
-
-            /*
-            // Determine the comparison length to avoid IndexOutOfBoundsException
-            int comparisonLength = Math.min(solution.size(), genome.size());
-
-            for (int i = 0; i < comparisonLength; i++) {
-                if (solution.get(i).equals(genome.get(i))) {
-                    fitness++;
-                }
-            }
-            */
-
-            // Calculate the penalty for length difference.
-            int penalty = 0;
-            switch (lengthPunishingStrategy) {
-                case LINEAR -> penalty = Math.abs(genome.size() - solution.size());
-                case EXPONENTIAL -> penalty = (int) Math.pow(genome.size() - solution.size(), 2);
-            }
-            fitness = (int) Math.max(0, fitness - lengthPunishingFactor * penalty);
-            individual.setFitness(fitness);
+        for (int i = 0; i < fitness.size(); i++) {
+            individuals.get(i).setFitness(fitness.get(i));
         }
+
+
     }
 
     /**
@@ -207,7 +155,7 @@ public class Population {
         if (individuals == null || individuals.isEmpty()) {
             throw new java.util.NoSuchElementException("Cannot find fittest individual in an empty population.");
         }
-        return java.util.Collections.max(individuals, Comparator.comparingInt(Individual::getFitness));
+        return java.util.Collections.max(individuals, Comparator.comparingDouble(Individual::getFitness));
     }
 
     /**

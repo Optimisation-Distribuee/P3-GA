@@ -1,6 +1,7 @@
 package be.brw.infrastructure;
 
 import be.brw.domain.FitnessEvaluator;
+import be.brw.domain.Individual;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,16 +28,16 @@ public class RemoteFitnessEvaluator  implements FitnessEvaluator {
     }
 
     @Override
-    public List<Double> evaluate(List<List<Byte>> genomes) {
+    public List<Double> evaluate(List<Individual> genomes) {
         if (genomes == null || genomes.isEmpty()) {
             return Collections.emptyList();
         }
         // Convert to a List<String>
         List<String> genomeStrings = genomes.stream()
                 .map(genome -> {
-                    byte[] genomeBytes = new byte[genome.size()];
-                    for (int i = 0; i < genome.size(); i++) {
-                        genomeBytes[i] = genome.get(i);
+                    byte[] genomeBytes = new byte[genome.getGenomeLength()];
+                    for (int i = 0; i < genome.getGenomeLength(); i++) {
+                        genomeBytes[i] = genome.getGene(i);
                     }
                     return new String(genomeBytes, StandardCharsets.UTF_8);
                 })

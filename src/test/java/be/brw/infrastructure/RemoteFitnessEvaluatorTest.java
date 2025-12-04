@@ -1,5 +1,6 @@
 package be.brw.infrastructure;
 
+import be.brw.domain.Individual;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -43,9 +44,9 @@ class RemoteFitnessEvaluatorTest {
                 .setBody("{\"fitness_scores\": [42.0, 55.5]}"));
 
         // Prepare a list of genomes for batch evaluation
-        List<List<Byte>> genomes = List.of(
-                toByteList("LRLRLR"),
-                toByteList("RRLRRL")
+        List<Individual> genomes = List.of(
+                new Individual(toByteList("LRLRLR")),
+                new Individual(toByteList("RRLRRL"))
         );
 
         // Act: Call the method we want to test.
@@ -68,7 +69,10 @@ class RemoteFitnessEvaluatorTest {
                 .setResponseCode(500)
                 .setBody("Internal Server Error"));
 
-        List<List<Byte>> genomes = List.of(toByteList("LRLRLR"), toByteList("ABC"));
+        List<Individual> genomes = List.of(
+                new Individual(toByteList("LRLRLR")),
+                new Individual(toByteList("ABC"))
+        );
 
         // Act
         List<Double> fitnessScores = evaluator.evaluate(genomes);
@@ -85,7 +89,9 @@ class RemoteFitnessEvaluatorTest {
                 .setHeader("Content-Type", "application/json")
                 .setBody("{\"invalid_key\": [123.0]}"));
 
-        List<List<Byte>> genomes = List.of(toByteList("a"));
+        List<Individual> genomes = List.of(
+                new Individual(toByteList("a"))
+        );
 
         // Act
         List<Double> fitnessScores = evaluator.evaluate(genomes);

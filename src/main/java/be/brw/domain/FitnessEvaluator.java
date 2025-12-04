@@ -9,5 +9,5 @@ public interface FitnessEvaluator {
      * @param genomes A list of genomes to be evaluated.
      * @return A list of fitness scores, one for each genome in the input list.
      */
-    List<Double> evaluate(List<List<Byte>> genomes);
+    List<Double> evaluate(List<Individual> genomes);
 }

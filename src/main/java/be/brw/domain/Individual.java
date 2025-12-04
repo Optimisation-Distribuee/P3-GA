@@ -19,7 +19,7 @@ public class Individual implements Comparable<Individual>{
     /**
      * The fitness score of the individual. A higher value indicates a better solution.
      */
-    private int fitness;
+    private double fitness;
 
     /**
      * Constructs a new Individual with a specified genome and fitness.
@@ -27,7 +27,7 @@ public class Individual implements Comparable<Individual>{
      * @param genome The list of bytes representing the individual's genome.
      * @param fitness The initial fitness score of the individual.
      */
-    public Individual(List<Byte> genome, int fitness) {
+    public Individual(List<Byte> genome, double fitness) {
         this.genome = genome;
         this.fitness = fitness;
     }
@@ -47,7 +47,7 @@ public class Individual implements Comparable<Individual>{
      *
      * @param fitness The new fitness score.
      */
-    public void setFitness(int fitness) {
+    public void setFitness(double fitness) {
         this.fitness = fitness;
     }
 
@@ -56,7 +56,7 @@ public class Individual implements Comparable<Individual>{
      *
      * @return The current fitness score.
      */
-    public int getFitness() {
+    public double getFitness() {
         return this.fitness;
     }
 
@@ -132,7 +132,10 @@ public class Individual implements Comparable<Individual>{
      */
     @Override
     public int compareTo(Individual other) {
-        return other.fitness - this.fitness;
+        double diff = other.fitness - this.fitness;
+        if (diff > 0) return 1;
+        else if (diff < 0) return -1;
+        else return 0;
     }
 
     /**

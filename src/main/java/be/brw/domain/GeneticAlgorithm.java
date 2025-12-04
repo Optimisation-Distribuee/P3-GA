@@ -43,13 +43,10 @@ public class GeneticAlgorithm {
 
         // Initialize the starting population based on the configuration.
         this.population = new Population(
-                config.getSolution(),
                 config.getPopulationSize(),
                 config.getMinGenomeLength(),
                 config.getMaxGenomeLength(),
-                config.getSeed(),
-                config.getLengthPunishingStrategy(),
-                config.getLengthPunishingFactor()
+                config.getSeed()
         );
 
         this.generationCount = 0;
@@ -118,7 +115,7 @@ public class GeneticAlgorithm {
 
             // Create the next generation's population from survivors and new children.
             survivors.addAll(children);
-            this.population = new Population(config.getSolution(), survivors, config.getSeed(), config.getLengthPunishingStrategy(), config.getLengthPunishingFactor());
+            this.population = new Population(survivors, config.getSeed());
         }
 
         System.out.println("No solution found in " + maxGeneration + " generations");
@@ -311,15 +308,15 @@ public class GeneticAlgorithm {
                 // Fitness-proportionate selection
                 List<Individual> rouletteWinners = new ArrayList<>(selectionSize);
 
-                int totalFitness = 0;
+                double totalFitness = 0;
                 for (Individual i: individuals) {
                     totalFitness += i.getFitness();
                 }
 
                 for (int i = 0; i < selectionSize; i++) {
-                    int pick = this.random.nextInt(totalFitness);
+                    double pick = this.random.nextDouble(totalFitness);
 
-                    int rouletteSum = 0;
+                    double rouletteSum = 0;
                     for (Individual individual : individuals) {
                         rouletteSum += individual.getFitness();
                         if (rouletteSum >= pick) {

@@ -45,7 +45,7 @@ public class Check {
                     int generationCount = ga.getGenerationCount();
 
                     String line = String.format(
-                            "[%s] Fitness=%d  Genomes=%s  Generations=%d%n",
+                            "[%s] Fitness=%f  Genomes=%s  Generations=%d%n",
                             configPath.getFileName(),
                             result.getFitness(),
                             result.getGenome().toString(),
