@@ -5,6 +5,8 @@ import be.brw.domain.strategy.*;
 import be.brw.infrastructure.RemoteFitnessEvaluator;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implements the core logic of a genetic algorithm to solve a bitstring-matching problem.
@@ -15,6 +17,8 @@ import java.util.*;
  * </p>
  */
 public class GeneticAlgorithm {
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     /**
      * Configuration object containing all parameters for the genetic algorithm.
@@ -90,7 +94,7 @@ public class GeneticAlgorithm {
             for (Individual individual: individuals){
                 if(individual.getFitness() >= 1.0 && !winners.contains(individual.getGenomeString())){
                     if (winners.isEmpty()) {
-                        System.out.println("Solution found in " + i + " generations");
+                        logger.log(Level.INFO, "Solution found in {0} generations", i);
                     }
                     String winnerGenomeString = individual.getGenomeString();
                     winners.add(winnerGenomeString);
@@ -129,7 +133,8 @@ public class GeneticAlgorithm {
             survivors.addAll(children);
             this.population = new Population(survivors, config.getSeed(), fitnessEvaluator);
         }
-        System.out.println("Best genome found: " + this.population.getFittest().getGenomeString() + " with fitness " + this.population.getFittest().getFitness());
+        Individual fittest = this.population.getFittest();
+        logger.log(Level.INFO, "Fittest individual: {0} with fitness {1}", new Object[]{fittest.getGenomeString(), fittest.getFitness()} );
         return winners;
     }
 
@@ -197,11 +202,11 @@ public class GeneticAlgorithm {
                 );
             }
         }catch (Exception e){
-            System.err.println(e.getMessage());
-            System.err.println(crossoverStrategy);
-            System.err.println(leftoverStrategy);
-            System.err.println(individual1);
-            System.err.println(individual2);
+            logger.log(Level.WARNING, "Crossover exception");
+            logger.log(Level.WARNING, "Error message: {}", e.getMessage());
+            logger.log(Level.WARNING, "Crossover strategy: {}", crossoverStrategy);
+            logger.log(Level.WARNING, "Leftover strategy: {}", leftoverStrategy);
+            logger.log(Level.WARNING, "Concerned individuals: \n{0}\n{1}", new Object[]{individual1, individual2});
             System.exit(-1);
         }
 
