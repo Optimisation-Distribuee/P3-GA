@@ -13,9 +13,9 @@ tournamentSize: 4
 # PARENTS , CHILDREN , BOTH
 mutationTargetStrategy: "CHILDREN"
 mutationRate: 0.3
-bitFlipRate: 0.7
+bitFlipRate: 0.6
 bitAddRate: 0.2
-bitRemoveRate: 0.1
+bitRemoveRate: 0.2
 
 # ONE_POINT , TWO_POINT , UNIFORM
 crossoverStrategy: "UNIFORM"

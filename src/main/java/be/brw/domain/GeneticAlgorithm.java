@@ -37,7 +37,7 @@ public class GeneticAlgorithm {
      */
     private int generationCount;
 
-    private FitnessEvaluator fitnessEvaluator;
+    private final FitnessEvaluator fitnessEvaluator;
 
     /**
      * Constructs a new GeneticAlgorithm instance and initializes the first population.
@@ -85,6 +85,7 @@ public class GeneticAlgorithm {
         int eliteCount = (int) Math.round(config.getPopulationSize() * (1.0 - config.getCrossoverRate()));
         List<String> winners = new ArrayList<>();
         int maxSolutions = config.getMaxSolutions();
+        final double WINNING_FITNESS_THRESHOLD = 5000.0;
         for (int i = 0; i <= maxGeneration; i++){
             this.generationCount = i;
 
@@ -92,7 +93,7 @@ public class GeneticAlgorithm {
 
             // Check for a perfect solution in the current population.
             for (Individual individual: individuals){
-                if(individual.getFitness() >= 1.0 && !winners.contains(individual.getGenomeString())){
+                if(individual.getFitness() >= WINNING_FITNESS_THRESHOLD && !winners.contains(individual.getGenomeString())){
                     if (winners.isEmpty()) {
                         logger.log(Level.INFO, "Solution found in {0} generations", i);
                     }
