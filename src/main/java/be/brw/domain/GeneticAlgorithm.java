@@ -44,7 +44,7 @@ public class GeneticAlgorithm {
      *
      * @param configuration The {@link GAConfig} object that defines the parameters of the algorithm.
      */
-    public GeneticAlgorithm(GAConfig configuration){
+    public GeneticAlgorithm(GAConfig configuration) {
         this.config = configuration;
         this.random = new Random(config.getSeed());
         this.fitnessEvaluator = new RemoteFitnessEvaluator("http://localhost:8000");
@@ -66,7 +66,7 @@ public class GeneticAlgorithm {
      *
      * @return The number of generations that have been processed.
      */
-    public int getGenerationCount(){
+    public int getGenerationCount() {
         return this.generationCount;
     }
 
@@ -77,6 +77,7 @@ public class GeneticAlgorithm {
      * to evolve the population toward the target solution. The process terminates if a perfect
      * solution is found or the maximum number of generations is reached.
      * </p>
+     *
      * @return The fittest individual found after the algorithm completes or finds a solution.
      */
     public List<String> runAlgorithm() {
@@ -86,23 +87,30 @@ public class GeneticAlgorithm {
         List<String> winners = new ArrayList<>();
         int maxSolutions = config.getMaxSolutions();
         final double WINNING_FITNESS_THRESHOLD = 5000.0;
-        for (int i = 0; i <= maxGeneration; i++){
+        for (int i = 0; i <= maxGeneration; i++) {
             this.generationCount = i;
 
             List<Individual> individuals = this.population.getIndividuals();
 
             // Check for a perfect solution in the current population.
-            for (Individual individual: individuals){
-                if(individual.getFitness() >= WINNING_FITNESS_THRESHOLD && !winners.contains(individual.getGenomeString())){
+            for (Individual individual : individuals) {
+                if (individual.getFitness() >= WINNING_FITNESS_THRESHOLD && !winners.contains(individual.getGenomeString())) {
                     if (winners.isEmpty()) {
                         logger.log(Level.INFO, "Solution found in {0} generations", i);
                     }
                     String winnerGenomeString = individual.getGenomeString();
                     winners.add(winnerGenomeString);
-                    if (winners.size() == maxSolutions){
+                    if (winners.size() == maxSolutions) {
                         return winners;
                     }
                 }
+            }
+
+            // Log progress
+            if (i % 100 == 0) {
+                Individual currentFittest = population.getFittest();
+                logger.log(Level.INFO, "Current fittest individual:\n{0}\nFitness:\n{1}",
+                        new Object[]{currentFittest.getGenomeString(), currentFittest.getFitness()});
             }
 
             // 1. Selection: Select the "elite" individuals to survive to the next generation.
@@ -123,8 +131,8 @@ public class GeneticAlgorithm {
                 List<Individual> parents = selection(survivors, 2);
                 Individual child = crossover(parents.getFirst(), parents.getLast());
                 if ((mutTarget == MutationTargetStrategy.CHILDREN || mutTarget == MutationTargetStrategy.BOTH) && random.nextDouble() <= config.getMutationRate()) {
-                        mutate(child);
-                    }
+                    mutate(child);
+                }
 
 
                 children.add(child);
@@ -135,7 +143,7 @@ public class GeneticAlgorithm {
             this.population = new Population(survivors, config.getSeed(), fitnessEvaluator);
         }
         Individual fittest = this.population.getFittest();
-        logger.log(Level.INFO, "Fittest individual: {0} with fitness {1}", new Object[]{fittest.getGenomeString(), fittest.getFitness()} );
+        logger.log(Level.INFO, "Fittest individual: {0} with fitness {1}", new Object[]{fittest.getGenomeString(), fittest.getFitness()});
         return winners;
     }
 
@@ -145,6 +153,7 @@ public class GeneticAlgorithm {
      * The method of crossover (e.g., one-point, uniform) and the handling of leftover genes
      * from parents of different lengths are determined by the {@link GAConfig}.
      * </p>
+     *
      * @param individual1 The first parent.
      * @param individual2 The second parent.
      * @return A new {@link Individual} (child) resulting from the crossover.
@@ -194,7 +203,8 @@ public class GeneticAlgorithm {
                     for (int i = 0; i < minLength; i++) {
                         boolean chooseA = pickB == 0 || (pickA > 0 && random.nextBoolean());
                         newGenome.add((chooseA ? genome1 : genome2).get(i));
-                        if (chooseA) pickA--; else pickB--;
+                        if (chooseA) pickA--;
+                        else pickB--;
                     }
                 }
 
@@ -202,7 +212,7 @@ public class GeneticAlgorithm {
                         "Unknown crossover strategy: " + crossoverStrategy
                 );
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.log(Level.WARNING, "Crossover exception");
             logger.log(Level.WARNING, "Error message: {}", e.getMessage());
             logger.log(Level.WARNING, "Crossover strategy: {}", crossoverStrategy);
@@ -225,10 +235,10 @@ public class GeneticAlgorithm {
      * append (or not append) the remaining genes to the child's genome.
      * </p>
      *
-     * @param strategy The strategy for handling leftover genes.
-     * @param newGenome The child's genome being constructed.
-     * @param leftovers The list of leftover genes from the longer parent.
-     * @param firstIndividual The first parent individual.
+     * @param strategy         The strategy for handling leftover genes.
+     * @param newGenome        The child's genome being constructed.
+     * @param leftovers        The list of leftover genes from the longer parent.
+     * @param firstIndividual  The first parent individual.
      * @param secondIndividual The second parent individual.
      * @return A new {@link Individual} with the final genome after handling leftovers.
      */
@@ -279,10 +289,11 @@ public class GeneticAlgorithm {
      * ({@code bitAddRate}, {@code bitRemoveRate}, {@code bitFlipRate}). The sum of these rates
      * equals the overall {@code mutationRate}.
      * </p>
+     *
      * @param individual The individual to mutate.
      * @return The same individual instance, which has been modified in-place.
      */
-    private Individual mutate(Individual individual){
+    private Individual mutate(Individual individual) {
         int randomGeneIndex = random.nextInt(individual.getGenomeLength());
         Moves randomMove = Moves.values()[this.random.nextInt(Moves.values().length)];
         Byte randomGene = Moves.toByte(randomMove);
@@ -296,7 +307,7 @@ public class GeneticAlgorithm {
                 individual.removeGene(randomGeneIndex);
             }
         } else {
-            while(randomGene.equals(individual.getGene(randomGeneIndex))){
+            while (randomGene.equals(individual.getGene(randomGeneIndex))) {
                 randomMove = Moves.values()[this.random.nextInt(Moves.values().length)];
                 randomGene = Moves.toByte(randomMove);
             }
@@ -308,7 +319,7 @@ public class GeneticAlgorithm {
     /**
      * Selects a subset of individuals from a given list based on the configured selection strategy.
      *
-     * @param individuals The pool of individuals to select from.
+     * @param individuals   The pool of individuals to select from.
      * @param selectionSize The number of individuals to select.
      * @return A new list containing the selected individuals.
      * @throws UnsupportedOperationException if the configured selection strategy is not recognized.
@@ -320,13 +331,13 @@ public class GeneticAlgorithm {
             case ELITISM:
                 // Select the fittest individuals
                 Collections.sort(individuals);
-                return individuals.subList(0,selectionSize);
+                return individuals.subList(0, selectionSize);
             case ROULETTE:
                 // Fitness-proportionate selection
                 List<Individual> rouletteWinners = new ArrayList<>(selectionSize);
 
                 double totalFitness = 0;
-                for (Individual i: individuals) {
+                for (Individual i : individuals) {
                     totalFitness += i.getFitness();
                 }
 
