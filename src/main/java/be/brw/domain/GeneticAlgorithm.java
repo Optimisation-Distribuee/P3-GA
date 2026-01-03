@@ -81,14 +81,22 @@ public class GeneticAlgorithm {
         int eliteCount = (int) Math.round(config.getPopulationSize() * (1.0 - config.getCrossoverRate()));
         List<String> winners = new ArrayList<>();
         int maxSolutions = config.getMaxSolutions();
+
+        double best_fitness_overall = Double.MIN_VALUE;
+
         for (int i = 0; i <= maxGeneration; i++){
             this.generationCount = i;
 
             List<Individual> individuals = this.population.getIndividuals();
 
+            double best_fitness_generation = Double.MIN_VALUE;
+
             // Check for a perfect solution in the current population.
             for (Individual individual: individuals){
-                if(individual.getFitness() >= 1.0 && !winners.contains(individual.getGenomeString())){
+                if (best_fitness_generation < individual.getFitness()){
+                    best_fitness_generation = individual.getFitness();
+                }
+                if(individual.getFitness() >= 3500.0 && !winners.contains(individual.getGenomeString())){
                     if (winners.isEmpty()) {
                         System.out.println("Solution found in " + i + " generations");
                     }
@@ -99,6 +107,13 @@ public class GeneticAlgorithm {
                     }
                 }
             }
+
+            if (best_fitness_generation > best_fitness_overall){
+                best_fitness_overall = best_fitness_generation;
+            }
+
+            System.out.println("Best fitness for generation " + i + " = " + best_fitness_generation);
+            System.out.println("Best fitness overall = " + best_fitness_overall);
 
             // 1. Selection: Select the "elite" individuals to survive to the next generation.
             List<Individual> survivors = selection(individuals, eliteCount);
